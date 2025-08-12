@@ -28,3 +28,21 @@ func NewExpense(id int, description string, amount float64) (*Expense, error) {
 		Date:        time.Now().UTC(),
 	}, nil
 }
+
+func (e *Expense) Update(description string, amount float64) error {
+	if description != "" {
+		e.Description = description
+	}
+
+	if amount > 0 {
+		e.Amount = amount
+	} else if amount <= 0 {
+		return fmt.Errorf("amount must be greater than zero")
+	}
+
+	return nil
+}
+
+func (e *Expense) BelongsToMonth(month int) bool {
+	return e.Date.Month() == time.Month(month)
+}
