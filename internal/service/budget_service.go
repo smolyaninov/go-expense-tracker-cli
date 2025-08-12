@@ -9,11 +9,6 @@ type BudgetService struct {
 	repo repo.BudgetRepository
 }
 
-type BudgetRepository interface {
-	Load() (map[string]float64, error)
-	Save(map[string]float64) error
-}
-
 func NewBudgetService(repo repo.BudgetRepository) *BudgetService {
 	return &BudgetService{repo}
 }
@@ -30,6 +25,10 @@ func (s *BudgetService) SetBudget(month int, year int, amount float64) error {
 	budgets, err := s.repo.Load()
 	if err != nil {
 		return err
+	}
+
+	if budgets == nil {
+		budgets = make(map[string]float64)
 	}
 
 	budgets[key] = amount
