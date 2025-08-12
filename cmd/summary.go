@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/smolyaninov/go-expense-tracker-cli/internal/repo"
 	"github.com/smolyaninov/go-expense-tracker-cli/internal/service"
 	"github.com/spf13/cobra"
 	"log"
@@ -17,8 +16,7 @@ var summaryCmd = &cobra.Command{
 	Use:   "summary",
 	Short: "Show total expenses (optional by month)",
 	Run: func(cmd *cobra.Command, args []string) {
-		repository := repo.NewJSONExpenseRepository("data/expense.json")
-		expenseService := service.NewExpenseService(repository)
+		expenseService := service.NewDefaultExpenseService()
 
 		if summaryMonth != 0 && (summaryMonth < 1 || summaryMonth > 12) {
 			log.Fatalf("Month must be between 1 and 12")

@@ -3,7 +3,6 @@ package cmd
 import (
 	"encoding/csv"
 	"fmt"
-	"github.com/smolyaninov/go-expense-tracker-cli/internal/repo"
 	"github.com/smolyaninov/go-expense-tracker-cli/internal/service"
 	"github.com/spf13/cobra"
 	"log"
@@ -15,8 +14,7 @@ var exportCmd = &cobra.Command{
 	Use:   "export",
 	Short: "Export expenses to CSV",
 	Run: func(cmd *cobra.Command, args []string) {
-		repository := repo.NewJSONExpenseRepository("data/expense.json")
-		expenseService := service.NewExpenseService(repository)
+		expenseService := service.NewDefaultExpenseService()
 
 		expenses, err := expenseService.GetAllExpenses()
 		if err != nil {

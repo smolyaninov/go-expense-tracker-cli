@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/smolyaninov/go-expense-tracker-cli/internal/repo"
 	"github.com/smolyaninov/go-expense-tracker-cli/internal/service"
 	"github.com/spf13/cobra"
 	"log"
@@ -25,8 +24,7 @@ var setBudgetCmd = &cobra.Command{
 			fmt.Println("Amount must be greater than zero")
 		}
 
-		repository := repo.NewJSONBudgetRepository("data/budget.json")
-		budgetService := service.NewBudgetService(repository)
+		budgetService := service.NewDefaultBudgetService()
 
 		year := time.Now().Year()
 		if err := budgetService.SetBudget(budgetMonth, year, budgetAmount); err != nil {

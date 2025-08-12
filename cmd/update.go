@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/smolyaninov/go-expense-tracker-cli/internal/repo"
 	"github.com/smolyaninov/go-expense-tracker-cli/internal/service"
 	"github.com/spf13/cobra"
 	"log"
@@ -23,8 +22,7 @@ var updateCmd = &cobra.Command{
 			log.Fatalf("You must provide at least one field to update: --description, --amount, --category\n")
 		}
 
-		repository := repo.NewJSONExpenseRepository("data/expense.json")
-		expenseService := service.NewExpenseService(repository)
+		expenseService := service.NewDefaultExpenseService()
 
 		err := expenseService.UpdateExpense(updateID, updateDescription, updateAmount, updateCategory)
 		if err != nil {

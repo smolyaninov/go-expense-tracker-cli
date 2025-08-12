@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/smolyaninov/go-expense-tracker-cli/internal/repo"
 	"github.com/smolyaninov/go-expense-tracker-cli/internal/service"
 	"github.com/spf13/cobra"
 	"log"
@@ -19,8 +18,7 @@ var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a new expense",
 	Run: func(cmd *cobra.Command, args []string) {
-		repository := repo.NewJSONExpenseRepository("data/expense.json")
-		expenseService := service.NewExpenseService(repository)
+		expenseService := service.NewDefaultExpenseService()
 
 		expense, err := expenseService.AddExpense(description, amount, category)
 		if err != nil {
@@ -29,8 +27,7 @@ var addCmd = &cobra.Command{
 
 		fmt.Printf("Expense added successfully (ID: %d)\n", expense.ID)
 
-		budgetRepository := repo.NewJSONBudgetRepository("data/budget.json")
-		budgetService := service.NewBudgetService(budgetRepository)
+		budgetService := service.NewDefaultBudgetService()
 
 		year := time.Now().Year()
 		month := time.Now().Month()
