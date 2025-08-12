@@ -15,7 +15,7 @@ func NewExpenseService(repo repo.ExpenseRepository) *ExpenseService {
 	return &ExpenseService{repo}
 }
 
-func (s *ExpenseService) AddExpense(description string, amount float64) (domain.Expense, error) {
+func (s *ExpenseService) AddExpense(description string, amount float64, category string) (domain.Expense, error) {
 	expenses, err := s.repo.Load()
 	if err != nil {
 		return domain.Expense{}, err
@@ -26,7 +26,7 @@ func (s *ExpenseService) AddExpense(description string, amount float64) (domain.
 		newID = expenses[len(expenses)-1].ID + 1
 	}
 
-	expense, err := domain.NewExpense(newID, description, amount)
+	expense, err := domain.NewExpense(newID, description, amount, category)
 	if err != nil {
 		return domain.Expense{}, err
 	}
@@ -68,7 +68,7 @@ func (s *ExpenseService) DeleteExpense(id int) error {
 	return s.repo.Save(newExpenses)
 }
 
-func (s *ExpenseService) UpdateExpense(id int, newDescription string, newAmount float64) error {
+func (s *ExpenseService) UpdateExpense(id int, newDescription string, newAmount float64, newCategory string) error {
 	expenses, err := s.repo.Load()
 	if err != nil {
 		return err
@@ -78,7 +78,7 @@ func (s *ExpenseService) UpdateExpense(id int, newDescription string, newAmount 
 
 	for i := range expenses {
 		if expenses[i].ID == id {
-			if err := expenses[i].Update(newDescription, newAmount); err != nil {
+			if err := expenses[i].Update(newDescription, newAmount, newCategory); err != nil {
 				return err
 			}
 			updated = true
@@ -93,22 +93,8 @@ func (s *ExpenseService) UpdateExpense(id int, newDescription string, newAmount 
 	return s.repo.Save(expenses)
 }
 
-func (s *ExpenseService) GetTotalAmount() (float64, error) {
-	expenses, err := s.repo.Load()
-	if err != nil {
-		return 0, err
-	}
-
-	var total float64
-	for _, e := range expenses {
-		total += e.Amount
-	}
-
-	return total, nil
-}
-
-func (s *ExpenseService) GetTotalAmountByMonth(month int) (float64, error) {
-	if month < 1 || month > 12 {
+func (s *ExpenseService) GetTotalAmountFiltered(month int, category string) (float64, error) {
+	if month != 0 && (month < 1 || month > 12) {
 		return 0, fmt.Errorf("month must be between 1 and 12")
 	}
 
@@ -121,9 +107,15 @@ func (s *ExpenseService) GetTotalAmountByMonth(month int) (float64, error) {
 	var total float64
 
 	for _, e := range expenses {
-		if e.Date.Year() == currentYear && e.Date.Month() == time.Month(month) {
-			total += e.Amount
+		if month != 0 && !e.BelongsToMonth(month, currentYear) {
+			continue
 		}
+
+		if category != "" && e.Category != category {
+			continue
+		}
+
+		total += e.Amount
 	}
 
 	return total, nil

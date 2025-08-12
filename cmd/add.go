@@ -12,6 +12,7 @@ import (
 var (
 	description string
 	amount      float64
+	category    string
 )
 
 var addCmd = &cobra.Command{
@@ -21,7 +22,7 @@ var addCmd = &cobra.Command{
 		repository := repo.NewJSONExpenseRepository("data/expense.json")
 		expenseService := service.NewExpenseService(repository)
 
-		expense, err := expenseService.AddExpense(description, amount)
+		expense, err := expenseService.AddExpense(description, amount, category)
 		if err != nil {
 			log.Fatalf("Error adding expense: %v", err)
 		}
@@ -35,6 +36,7 @@ func init() {
 
 	addCmd.Flags().StringVarP(&description, "description", "d", "", "Description")
 	addCmd.Flags().Float64VarP(&amount, "amount", "a", 0, "Amount")
+	addCmd.Flags().StringVarP(&category, "category", "c", "", "Category")
 
 	addCmd.MarkFlagRequired("description")
 	addCmd.MarkFlagRequired("amount")
