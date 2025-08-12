@@ -1,0 +1,47 @@
+package service
+
+import (
+	"fmt"
+	"github.com/smolyaninov/go-expense-tracker-cli/internal/repo"
+)
+
+type BudgetService struct {
+	repo repo.BudgetRepository
+}
+
+type BudgetRepository interface {
+	Load() (map[string]float64, error)
+	Save(map[string]float64) error
+}
+
+func NewBudgetService(repo repo.BudgetRepository) *BudgetService {
+	return &BudgetService{repo}
+}
+
+func (s *BudgetService) SetBudget(month int, year int, amount float64) error {
+	if month < 1 || month > 12 {
+		return fmt.Errorf("month must be between 1 and 12")
+	}
+	if amount <= 0 {
+		return fmt.Errorf("amount must be greater than zero")
+	}
+
+	key := fmt.Sprintf("%d-%d", month, year)
+	budgets, err := s.repo.Load()
+	if err != nil {
+		return err
+	}
+
+	budgets[key] = amount
+	return s.repo.Save(budgets)
+}
+
+func (s *BudgetService) GetBudget(month int, year int) (float64, error) {
+	key := fmt.Sprintf("%d-%d", month, year)
+	budgets, err := s.repo.Load()
+	if err != nil {
+		return 0, err
+	}
+
+	return budgets[key], nil
+}

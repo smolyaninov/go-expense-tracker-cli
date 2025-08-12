@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/smolyaninov/go-expense-tracker-cli/internal/repo"
 	"github.com/smolyaninov/go-expense-tracker-cli/internal/service"
-	"log"
-
 	"github.com/spf13/cobra"
+	"log"
+	"time"
 )
 
 var (
@@ -28,6 +28,30 @@ var addCmd = &cobra.Command{
 		}
 
 		fmt.Printf("Expense added successfully (ID: %d)\n", expense.ID)
+
+		budgetRepository := repo.NewJSONBudgetRepository("data/budget.json")
+		budgetService := service.NewBudgetService(budgetRepository)
+
+		year := time.Now().Year()
+		month := time.Now().Month()
+
+		budget, err := budgetService.GetBudget(int(month), year)
+		if err != nil {
+			log.Printf("Warning: could not load budget: %v", err)
+		}
+
+		if budget > 0 {
+			fmt.Printf("\nBudget for %s: $%.2f\n", month, budget)
+
+			total, err := expenseService.GetTotalAmountFiltered(int(month), "")
+			if err == nil {
+				fmt.Printf("Current total for %s: $%.2f\n", month, total)
+
+				if total > budget {
+					fmt.Printf("Warning: you have exceeded your budget for %s!\n", month)
+				}
+			}
+		}
 	},
 }
 

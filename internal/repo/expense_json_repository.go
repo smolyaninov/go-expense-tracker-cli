@@ -7,6 +7,11 @@ import (
 	"path/filepath"
 )
 
+type ExpenseRepository interface {
+	Load() ([]domain.Expense, error)
+	Save([]domain.Expense) error
+}
+
 type JSONExpenseRepository struct {
 	filename string
 }
@@ -34,12 +39,12 @@ func (r *JSONExpenseRepository) Load() ([]domain.Expense, error) {
 	return expenses, nil
 }
 
-func (r *JSONExpenseRepository) Save(expense []domain.Expense) error {
+func (r *JSONExpenseRepository) Save(expenses []domain.Expense) error {
 	if err := os.MkdirAll(filepath.Dir(r.filename), 0755); err != nil {
 		return err
 	}
 
-	file, err := json.MarshalIndent(expense, "", " ")
+	file, err := json.MarshalIndent(expenses, "", " ")
 	if err != nil {
 		return err
 	}
